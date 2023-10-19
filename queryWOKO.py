@@ -35,7 +35,8 @@ def send_message(body="", **kwargs):
         server.login(sender_email, password)
         server.sendmail(sender_email, receiver_email, message)
 
-    print('Message send!')
+    print('Message sent!')
+
 
 def query_all_website():
     """
