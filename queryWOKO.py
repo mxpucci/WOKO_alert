@@ -1,4 +1,5 @@
 from urllib.request import urlopen
+from urllib.parse import urljoin
 import ssl
 import smtplib
 import time
@@ -10,7 +11,7 @@ with open("config.yaml", "r") as opened_file:
     config = yaml.safe_load(opened_file)
 
 
-def send_message(body="", **kwargs):
+def send_message(config, body=""):
     """
     Send email
     :param body: the body of the email.
@@ -19,48 +20,84 @@ def send_message(body="", **kwargs):
     :param password: The app-password of the email.
     :return:
     """
-    receiver_email = kwargs.get('receiver_email')
-    sender_email = kwargs.get('sender_email')
-    password = kwargs.get('password')
+    receiver_email = config.get('receiver_email')
+    sender_email = config.get('sender_email')
+    password = config.get('password')
 
     port = 587  # For starttls
     smtp_server = "smtp.gmail.com"
-    message = f"Subject: You have a new post\n\n\n{body}.\n\n\nCheers,\nYour team"
-    print(message)
+    message = f"Subject: You have a new post\n\n\n{body}\n---\n\n\nCheers,\nYour team"
     context = ssl.create_default_context()
     with smtplib.SMTP(smtp_server, port) as server:
         server.ehlo()  # Can be omitted
         server.starttls(context=context)
         server.ehlo()  # Can be omitted
         server.login(sender_email, password)
-        server.sendmail(sender_email, receiver_email, message)
+        server.sendmail(sender_email, receiver_email, message.encode('utf-8'))
 
     print('Message sent!')
 
 
-def query_all_website():
+def query_room_website(url):
+    print(f'Scraping {url}')
+    html = urlopen(url).read()
+    soup = BeautifulSoup(html, features="html.parser")
+
+    body = ""
+    # "tr" is table row
+    for row in soup.find_all('tr'):
+        cells = row.find_all('td')
+        if len(cells) == 2:
+            for cell in cells:
+                info = cell.text.strip()
+                body += info + '\n'
+            body += '\n'
+
+    return body
+
+
+def query_main_website() -> list:
     """
-    Check the WOKO website for the number of available rooms
-    :return: Number of rooms
+    Find all listings on the main WOKO website
+    :return: list of listings
     """
     url = config["url_woko"]
     html = urlopen(url).read()
     soup = BeautifulSoup(html, features="html.parser")
 
-    # kill all script and style elements
-    for script in soup(["script", "style"]):
-        script.extract()    # rip it out
 
-    # get text
-    text = soup.get_text()
+    listings = {}
+    id = ''
+    zurich_variations = ('zurich', 'zürich', 'zuerich')
+    winterthur_variations = ('winterthur', 'wädenswil', 'waedenswil')
+    for button in soup.find_all('button'):
+        button_text = button.text.lower()
+        if 'data-gruppeid' in str(button):
+            if config['city'].lower() in zurich_variations and any(city in button_text for city in zurich_variations):
+                id = button['data-gruppeid']
+                break
+            elif config['city'].lower() in winterthur_variations and any(city in button_text for city in winterthur_variations):
+                id = button['data-gruppeid']
+                break
+            elif 'free rooms' in button_text:
+                id = button['data-gruppeid']
+                break
 
-    # break into lines and remove leading and trailing space on each
-    lines = (line.strip() for line in text.splitlines())
-    # break multi-headlines into a line each
-    chunks = (phrase.strip() for line in lines for phrase in line.split("  "))
-    # drop blank lines
-    text = [chunk for chunk in chunks if config["keyword"] in chunk]
-    return text
+    if id == '':
+        print("Couldn't find the room buttons")
+        return listings
+
+    # This is the div which the button reveals
+    div = soup.find('div', attrs={'id': f'GruppeID_{id}'})
+
+    listing_urls = []
+    for link in div.find_all('a'):
+        relative_room_url = link['href']
+        room_url = urljoin(url, relative_room_url)
+        listing_urls.append(room_url)
+
+    return listing_urls
+
 
 def sleep():
     """
@@ -72,16 +109,31 @@ def sleep():
     time.sleep(timer)
 
 
-memory_list = query_all_website()
+listing_urls = query_main_website()
+
+if len(listing_urls) == 0:
+    print('No listings found')
+    if config['test_email']:
+        print('Cannot test without any listings, exiting')
+        exit()
+
+if config['test_email']:
+    listing_urls.pop()
 
 while True:
-    new_memory_list = query_all_website()
+    next_listing_urls = query_main_website()
 
-    if memory_list != new_memory_list or config['test_email']:
-        send_message(**config)
+    new_listing_urls = set(next_listing_urls) - set(listing_urls)
+
+    if new_listing_urls:
+        for new_listing_url in new_listing_urls:
+            send_message(
+                body=query_room_website(new_listing_url),
+                config=config,
+            )
         print("Found!")
-        memory_list = new_memory_list
+        listing_urls = next_listing_urls
         sleep()
     else:
-        print(f"Still: {len(new_memory_list)} rooms...")
+        print(f"Still: {len(next_listing_urls)} rooms...")
         sleep()
