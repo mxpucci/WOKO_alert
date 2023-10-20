@@ -71,7 +71,9 @@ def query_main_website() -> list:
     winterthur_variations = ('winterthur', 'wädenswil', 'waedenswil')
     for button in soup.find_all('button'):
         button_text = button.text.lower()
+        # The button and div containing the listing are linked with a data-gruppeid number.
         if 'data-gruppeid' in str(button):
+            # Looking for the button corresponding to a specific city.
             if (
                     config['city'].lower() in zurich_variations
                     and any(city in button_text for city in zurich_variations)
