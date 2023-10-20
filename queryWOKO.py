@@ -65,7 +65,6 @@ def query_main_website() -> list:
     html = urlopen(url).read()
     soup = BeautifulSoup(html, features="html.parser")
 
-
     listings = {}
     id = ''
     zurich_variations = ('zurich', 'zürich', 'zuerich')
@@ -73,12 +72,20 @@ def query_main_website() -> list:
     for button in soup.find_all('button'):
         button_text = button.text.lower()
         if 'data-gruppeid' in str(button):
-            if config['city'].lower() in zurich_variations and any(city in button_text for city in zurich_variations):
+            if (
+                    config['city'].lower() in zurich_variations
+                    and any(city in button_text for city in zurich_variations)
+            ):
                 id = button['data-gruppeid']
                 break
-            elif config['city'].lower() in winterthur_variations and any(city in button_text for city in winterthur_variations):
+
+            elif (
+                    config['city'].lower() in winterthur_variations
+                    and any(city in button_text for city in winterthur_variations)
+            ):
                 id = button['data-gruppeid']
                 break
+
             elif 'free rooms' in button_text:
                 id = button['data-gruppeid']
                 break
