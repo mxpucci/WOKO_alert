@@ -53,6 +53,8 @@ def query_room_website(url):
                 body += info + '\n'
             body += '\n'
 
+    body += f'Listing link\n{url}'
+
     return body
 
 
