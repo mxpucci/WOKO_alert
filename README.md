@@ -1,7 +1,7 @@
 # WOKO_alert
 ##### Any feedback or contribution would be appreciated. Don't forget to give a STAR :star2:
 ##### Currently, this is a code base with minimum condition requirements. CS guys could help if something more sophisticated is needed. ;)
-It is crucial to be the first who contacts the room subtenant, because they get 100s emails/day. This script checks the [WOKO](http://www.woko.ch) website for student accommodation in Zurich, Switzerland for new room entries repeatedly once in a specified time interval and sends you an email alert if a new room is **available**.
+It is crucial to be the first who contact the room subtenant because they get 100s emails/day. This script checks the [WOKO](http://www.woko.ch) website for student accommodation in Zurich, Switzerland for new room entries repeatedly once in a specified time interval and sends you an email alert if a new room is **available**.
 
 Version: 11.2022
 
@@ -40,10 +40,10 @@ test_email: True
 ```
 
 You can use the same **receiver_email** and **sender_email**.  
-Since May 30 2022: You have to enable 2-step verification and set up app password for this app and set it the config file so that this app is allowed to login, else it will be considered a less secure app and gmail won't allow it to login. See this for more info: https://support.google.com/accounts/answer/6010255, https://support.google.com/accounts/answer/185833?hl=en.
+Since May 30, 2022: You have to enable 2-step verification and set up an app password for this app, and set the config file so that this app is allowed to log in, else it will be considered a less secure app and Gmail won't allow it to log in. See this for more info: https://support.google.com/accounts/answer/6010255, https://support.google.com/accounts/answer/185833?hl=en.
 **The script doesn't store and share your privacy data!**
 
-You can choose the appropriate url_woko depending on the city and whether you want sublets or not. For eg, "https://www.woko.ch/en/nachmieter-gesucht" only contains longterm listings while "https://www.woko.ch/en/zimmer-in-zuerich" contains both.
+You can choose the appropriate url_woko depending on the city and whether you want sublets or not. For eg, "https://www.woko.ch/en/nachmieter-gesucht" only contains long-term listings while "https://www.woko.ch/en/zimmer-in-zuerich" contains both.
 
 ### 3. Run
 
