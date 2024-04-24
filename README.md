@@ -27,14 +27,16 @@ pip install -r requirements.txt
 Open and fill out the config.yaml file.
 
 ```python
-content: "New WOKO room!"
-receiver_email: "email@gmail.com" # email to send to 
+receiver_email: "email@gmail.com" # email to send to
 sender_email: "email@gmail.com" # email to send from 
-password: "app_password" # password of the sender_email email 
-keyword: "Zürich" # Choose between Zürich and Winterthur
-url_woko: "https://www.woko.ch/en/nachmieter-gesucht"
+password: "**** **** **** ****" # The app-password of the sender_email email
+city: "Zürich" # Choose between Zürich and Winterthur (Winterthur includes Wädenswil listings)
+url_woko: "https://www.woko.ch/en/nachmieter-gesucht"  # Long-term listings
+#url_woko: "https://www.woko.ch/en/untermieter-gesucht"  # Short-term listings (sublets)
+#url_woko: "https://www.woko.ch/en/zimmer-in-zuerich"  # Both listing types for Zurich (overrides the city parameter)
+#url_woko: "https://www.woko.ch/en/zimmer-in-winterthur-und-waedenswil"  # Both listing types for Winterthur and Wädenswil (overrides the city parameter)
 timer: 120 # in s./ interval to update request
-test_email: True # once you test it to see if you are getting the emails, make it False!
+test_email: True
 ```
 
 You can use the same **receiver_email** and **sender_email**.  
