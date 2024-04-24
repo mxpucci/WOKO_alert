@@ -36,7 +36,7 @@ url_woko: "https://www.woko.ch/en/nachmieter-gesucht"  # Long-term listings
 #url_woko: "https://www.woko.ch/en/zimmer-in-zuerich"  # Both listing types for Zurich (overrides the city parameter)
 #url_woko: "https://www.woko.ch/en/zimmer-in-winterthur-und-waedenswil"  # Both listing types for Winterthur and Wädenswil (overrides the city parameter)
 timer: 120 # in s./ interval to update request
-test_email: True
+test_email: True  # once you test it to see if you are getting the emails, make this False!
 ```
 
 You can use the same **receiver_email** and **sender_email**.  
