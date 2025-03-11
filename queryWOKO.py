@@ -24,8 +24,8 @@ def send_message(config, body=""):
     sender_email = config.get('sender_email')
     password = config.get('password')
 
-    port = 587  # For starttls
-    smtp_server = "smtp.gmail.com"
+    port = config.get("smtp_port") # 587
+    smtp_server = config.get("smtp_server") # "smtp.gmail.com"
     message = f"Subject: You have a new post\n\n\n{body}\n---\n\n\nCheers,\nYour team"
     context = ssl.create_default_context()
     with smtplib.SMTP(smtp_server, port) as server:
