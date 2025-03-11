@@ -11,6 +11,43 @@ with open("config.yaml", "r") as opened_file:
     config = yaml.safe_load(opened_file)
 
 
+def send_mail(recipient, subject, message):
+    # Email addresses
+    sender_name = "Transcriber"
+    sender_mail = "transcriber@michelangelopucci.com"
+
+    # Create message object instance
+    msg = MIMEMultipart()
+    # Setup the parameters of the message
+    msg['From'] = f"{sender_name} <{sender_mail}>"
+    msg['To'] = recipient
+    msg['Subject'] = subject
+
+    # Add the message body to the email
+    msg.attach(MIMEText(message, 'plain'))
+
+
+    if not (attachment_path is None and file_name is None):
+        with open(attachment_path, 'rb') as file:
+            attachment = MIMEApplication(file.read(), _subtype=file_name.split(".")[-1])
+            attachment.add_header('Content-Disposition', 'attachment', filename=file_name)
+            msg.attach(attachment)
+
+    # Create SMTP session
+    smtp_username = config.get('sender_email')
+    smtp_password = config.get('password')
+
+    smtp_port = config.get("smtp_port") # 587
+    smtp_server = config.get("smtp_server") # "smtp.gmail.com"
+    session = smtplib.SMTP_SSL(smtp_server, smtp_port)
+    session.login(smtp_username, smtp_password)
+
+    # Send the message
+    session.sendmail(sender_mail, recipient, msg.as_string())
+
+    # Close the SMTP session
+    session.quit()
+
 def send_message(config, body=""):
     """
     Send email
@@ -20,21 +57,10 @@ def send_message(config, body=""):
     :param password: The app-password of the email.
     :return:
     """
-    receiver_email = config.get('receiver_email')
-    sender_email = config.get('sender_email')
-    password = config.get('password')
-
-    port = config.get("smtp_port") # 587
-    smtp_server = config.get("smtp_server") # "smtp.gmail.com"
+    
     message = f"Subject: You have a new post\n\n\n{body}\n---\n\n\nCheers,\nYour team"
-    context = ssl.create_default_context()
-    with smtplib.SMTP(smtp_server, port) as server:
-        server.ehlo()  # Can be omitted
-        server.starttls(context=context)
-        server.ehlo()  # Can be omitted
-        server.login(sender_email, password)
-        server.sendmail(sender_email, receiver_email, message.encode('utf-8'))
-
+    receiver_email = config.get('receiver_email')
+    send_mail(recipient=receiver_email, subject="New woko listing", message=message)
     print('Message sent!')
 
 
